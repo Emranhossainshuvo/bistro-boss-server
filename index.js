@@ -38,6 +38,22 @@ async function run() {
 
     // JWT related apis
 
+    // varify token middleware
+     const varifyToken = (req, res, next) => {
+      console.log( 'inside varify token' ,  req.headers.authorization); 
+      if(!req.headers.authorization){
+        return res.status(401).send({message: 'Forbidden access'})
+      }
+      const token = req.headers.authorization.split(' ')[1]; 
+      jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+        if(err){
+          return res.status(401).send({message: 'Forbidden access'})
+        }; 
+        req.decoded = decoded; 
+        next(); 
+      })
+     }
+
     app.post('/jwt', async(req, res) => {
       const user = req.body; 
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '1h'}); 
@@ -47,7 +63,8 @@ async function run() {
 
     // user related API 
 
-    app.get('/users', async(req, res) => {
+    app.get('/users', varifyToken, async(req, res) => {
+      
       const result = await userCollection.find().toArray(); 
       res.send(result); 
     })
