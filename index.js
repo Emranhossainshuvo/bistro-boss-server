@@ -39,7 +39,7 @@ async function run() {
     // JWT related apis
 
     // varify token middleware
-     const varifyToken = (req, res, next) => {
+     const verifyToken = (req, res, next) => {
       console.log( 'inside varify token' ,  req.headers.authorization); 
       if(!req.headers.authorization){
         return res.status(401).send({message: 'Forbidden access'})
@@ -63,8 +63,22 @@ async function run() {
 
     // user related API 
 
-    app.get('/users', varifyToken, async(req, res) => {
-      
+    app.get('/users/admin/:email', verifyToken, async(req, res) => {
+      const email = req.params.email; 
+      if(email !== req.decoded.email){
+        return res.status(403).send({message: 'Unauthorized access'})
+      }
+      const query = {email: email}; 
+      const user = await userCollection.findOne(query); 
+      let admin = false; 
+      if(user){
+           admin = user?.role === 'admin'
+      }
+      res.send({admin})
+    })
+
+
+    app.get('/users', verifyToken, async(req, res) => {
       const result = await userCollection.find().toArray(); 
       res.send(result); 
     })
