@@ -36,12 +36,12 @@ async function run() {
 
      const verifyToken = (req, res, next) => {
       if(!req.headers.authorization){
-        return res.status(401).send({message: 'Forbidden access'})
+        return res.status(401).send({message: 'Forbidden access'});
       }
       const token = req.headers.authorization.split(' ')[1]; 
       jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
         if(err){
-          return res.status(401).send({message: 'Forbidden access'})
+          return res.status(401).send({message: 'Forbidden access'});
         }; 
         req.decoded = decoded; 
         next(); 
@@ -54,7 +54,7 @@ async function run() {
         const user = await userCollection.findOne(query); 
         const isAdmin = user?.role === 'admin'; 
         if(!isAdmin){
-          return res.status(403).send({message: 'Forbidden access'})
+          return res.status(403).send({message: 'Forbidden access'});
         }; 
         next(); 
      }
